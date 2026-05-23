@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "uk.botsoft.hearingassist.app-mergeDebugResources-43:/values-en/values-en.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\danie\\Documents\\GitHub\\Ultimate_KI_Setup\\android-hearing-assist\\app\\src\\main\\res\\values-en\\strings.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "51",
+                        "endOffsets": "63"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "51",
+                        "endOffsets": "102"
+                    }
+                }
+            ]
+        }
+    ]
+}

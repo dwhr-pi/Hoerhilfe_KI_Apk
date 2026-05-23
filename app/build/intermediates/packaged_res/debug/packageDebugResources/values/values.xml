@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <string name="app_name">Hörhilfe KI</string>
+    <style name="Theme.HearingAssist" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:statusBarColor" ns1:targetApi="l">?android:colorBackground</item>
+    </style>
+</resources>

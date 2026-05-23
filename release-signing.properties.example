@@ -1,0 +1,7 @@
+# Copy this file to `release-signing.properties` and fill in your real values.
+# Paths may be absolute or relative to the repo root.
+
+storeFile=keystore/hearing-assist-release.jks
+storePassword=CHANGE_ME
+keyAlias=hearingassist
+keyPassword=CHANGE_ME

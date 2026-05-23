@@ -1,8 +1,31 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val releaseSigningProperties = Properties()
+val releaseSigningFile = rootProject.file("release-signing.properties")
+if (releaseSigningFile.exists()) {
+    releaseSigningFile.inputStream().use { releaseSigningProperties.load(it) }
+}
+
+fun signingValue(key: String): String? {
+    val envKey = "HEARING_ASSIST_${key.uppercase()}"
+    val fromEnv = System.getenv(envKey)?.takeIf { it.isNotBlank() }
+    val fromFile = releaseSigningProperties.getProperty(key)?.takeIf { it.isNotBlank() }
+    return fromEnv ?: fromFile
+}
+
+val releaseStoreFile = signingValue("storeFile")?.let { rootProject.file(it) }
+val releaseStorePassword = signingValue("storePassword")
+val releaseKeyAlias = signingValue("keyAlias")
+val releaseKeyPassword = signingValue("keyPassword")
+val hasReleaseSigning = releaseStoreFile?.exists() == true &&
+    !releaseStorePassword.isNullOrBlank() &&
+    !releaseKeyAlias.isNullOrBlank() &&
+    !releaseKeyPassword.isNullOrBlank()
 
 android {
     namespace = "uk.botsoft.hearingassist"
@@ -12,15 +35,34 @@ android {
         applicationId = "uk.botsoft.hearingassist"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             isMinifyEnabled = false
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -41,10 +83,18 @@ android {
         compose = true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
     }
 }
 

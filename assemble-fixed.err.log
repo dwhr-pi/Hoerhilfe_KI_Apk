@@ -1,0 +1,35 @@
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring root project 'HearingAssistAndroid'.
+> Could not resolve all artifacts for configuration ':classpath'.
+   > Could not download kotlin-gradle-plugin-1.9.24-gradle82.jar (org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24)
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/1.9.24/kotlin-gradle-plugin-1.9.24-gradle82.jar'.
+         > Read timed out
+   > Could not download bundletool-1.16.0.jar (com.android.tools.build:bundletool:1.16.0)
+      > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/bundletool/1.16.0/bundletool-1.16.0.jar'.
+         > Read timed out
+   > Could not download tink-1.7.0.jar (com.google.crypto.tink:tink:1.7.0)
+      > Could not get resource 'https://repo.maven.apache.org/maven2/com/google/crypto/tink/tink/1.7.0/tink-1.7.0.jar'.
+         > Read timed out
+   > Could not download protos-31.5.2.jar (com.android.tools.analytics-library:protos:31.5.2)
+      > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/protos/31.5.2/protos-31.5.2.jar'.
+         > Read timed out
+   > Could not download kotlin-compiler-embeddable-1.9.24.jar (org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.24)
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/1.9.24/kotlin-compiler-embeddable-1.9.24.jar'.
+         > Read timed out
+   > Could not download bcprov-jdk18on-1.77.jar (org.bouncycastle:bcprov-jdk18on:1.77)
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/bouncycastle/bcprov-jdk18on/1.77/bcprov-jdk18on-1.77.jar'.
+         > Read timed out
+   > Could not download jna-platform-5.6.0.jar (net.java.dev.jna:jna-platform:5.6.0)
+      > Could not get resource 'https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.6.0/jna-platform-5.6.0.jar'.
+         > Read timed out
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1h 15m 25s

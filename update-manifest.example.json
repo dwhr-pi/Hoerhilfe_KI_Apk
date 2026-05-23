@@ -1,0 +1,7 @@
+{
+  "productId": "hoerhilfe-ki.android.alpha",
+  "versionCode": 3,
+  "versionName": "0.1.2-alpha",
+  "downloadUrl": "https://example.com/hoerhilfe-ki/app-debug-latest.apk",
+  "message": "Neue Alpha-Version mit Fehlerprotokoll und Update-Pruefung."
+}
