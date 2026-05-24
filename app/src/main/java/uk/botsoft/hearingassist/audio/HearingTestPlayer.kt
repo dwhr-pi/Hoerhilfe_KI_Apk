@@ -35,7 +35,7 @@ class HearingTestPlayer {
 
         val audioTrack = AudioTrack(
             AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build(),
             AudioFormat.Builder()

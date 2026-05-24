@@ -200,7 +200,7 @@ fun HearingAssistApp() {
         )
         val selectedProfile = loaded.savedProfiles.firstOrNull { it.id == loaded.selectedProfileId } ?: loaded.savedProfiles.first()
         profileNameInput = selectedProfile.name
-        hearingTestState = HearingTestUiState(result = loaded.testResult, totalUnits = 64)
+        hearingTestState = HearingTestUiState(result = loaded.testResult, totalUnits = 66)
         initialized = true
         if (loaded.audioRuntimeSettings.preferredRoute != AudioRoutePreference.Default) {
             audioStatus = runCatching { audioRouter.applyRoute(loaded.audioRuntimeSettings.preferredRoute) }
@@ -595,6 +595,32 @@ fun HearingAssistApp() {
             return
         }
 
+        if (isLiveAudioRunning) {
+            liveAudioEngine.stop()
+            isLiveAudioRunning = false
+        }
+        if (isMonitoring) {
+            microphoneMonitor.stop()
+            isMonitoring = false
+        }
+        if (isTranscribing) {
+            speechTranscriber.stop()
+            isTranscribing = false
+        }
+        micLevel = 0f
+        updateRuntime {
+            it.copy(
+                hearingAidEnabled = false,
+                liveProcessingEnabled = false,
+                micMonitoringEnabled = false,
+            )
+        }
+        audioStatus = localized(
+            activeLanguage(),
+            "Hörtest aktiv: Live Assist, Monitor und Transkription wurden pausiert.",
+            "Hearing test active: Live Assist, monitor and transcription were paused.",
+        )
+
         hearingTestState = HearingTestUiState(
             isRunning = true,
             status = localized(
@@ -603,7 +629,7 @@ fun HearingAssistApp() {
                 "Voice instructions are playing",
             ),
             result = hearingTestState.result,
-            totalUnits = 64,
+            totalUnits = 66,
         )
 
         scope.launch {

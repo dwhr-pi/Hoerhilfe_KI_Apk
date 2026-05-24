@@ -22,7 +22,7 @@ data class HearingTestUiState(
     val currentLevelPercent: Int? = null,
     val currentEar: EarSide? = null,
     val completedUnits: Int = 0,
-    val totalUnits: Int = 64,
+    val totalUnits: Int = 66,
     val lastReactionMs: Long? = null,
     val result: HearingTestResult = HearingTestResult(),
 )
@@ -52,6 +52,7 @@ class AdaptiveHearingTestEngine(
         4000,
         4250,
         4500,
+        4750,
         5000,
         5250,
         5500,
@@ -252,6 +253,20 @@ class AdaptiveHearingTestEngine(
             state.currentStep = (state.currentStep - 1).coerceAtLeast(0)
         }
 
+        if (!heard && state.currentStep == 0 && state.totalTrials >= MAX_MISSED_LOUD_TRIALS) {
+            state.heardDbCandidates += NOT_HEARD_THRESHOLD_DB
+            state.pendingReplayCount = 0
+            state.pendingReplayBoost = 0
+            state.isComplete = true
+        }
+        if (!heard && state.totalTrials >= MAX_TRIALS_PER_FREQUENCY) {
+            if (state.heardDbCandidates.isEmpty()) {
+                state.heardDbCandidates += NOT_HEARD_THRESHOLD_DB
+            }
+            state.pendingReplayCount = 0
+            state.pendingReplayBoost = 0
+            state.isComplete = true
+        }
         if (state.pendingReplayCount == 0 && state.totalTrials >= 4 && state.reversals >= 2) {
             state.isComplete = true
         }
@@ -269,7 +284,7 @@ class AdaptiveHearingTestEngine(
         val candidates = frequencyStates.values.filter { !it.isComplete }
         val replayCandidates = candidates.filter { it.pendingReplayCount > 0 }
         return when {
-            replayCandidates.isNotEmpty() -> replayCandidates.shuffled(random).firstOrNull()
+            replayCandidates.isNotEmpty() && random.nextFloat() < 0.45f -> replayCandidates.shuffled(random).firstOrNull()
             else -> candidates.shuffled(random).firstOrNull()
         }
     }
@@ -376,5 +391,8 @@ class AdaptiveHearingTestEngine(
         const val RESPONSE_WINDOW_MS = 2_000L
         const val MIN_VALID_REACTION_MS = 140L
         const val MAX_VALID_REACTION_MS = 1_700L
+        const val MAX_MISSED_LOUD_TRIALS = 3
+        const val MAX_TRIALS_PER_FREQUENCY = 8
+        const val NOT_HEARD_THRESHOLD_DB = 65
     }
 }
