@@ -3,3 +3,24 @@
 release-signing.properties
 release-signing.local.properties
 keystore/
+
+# Local Android/Gradle state
+.gradle/
+**/build/
+local.properties
+
+# Local dependency mirrors and downloaded tools
+local-maven/
+tools/gradle-*/
+tools/gradle-*-bin.zip
+
+# Build logs and generated diagnostics
+*.log
+gradle-build.*
+gradle-help-*
+assemble*.out.log
+assemble*.err.log
+
+# Local test artifacts
+dist/
+tmp-hearing-icon.svg
