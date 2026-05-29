@@ -18,6 +18,18 @@ Die App soll UI, Audio-Engine, DSP und KI-Gateway sauber trennen. Aktuell nutzt 
 - DSP: Gain, Balance, EQ, Kompressor, Limiter, Feedback-Schutz.
 - KI-Gateway: Chat, Zusammenfassung, Übersetzung, spätere Audio-Transkription.
 
+## Messpunkte
+
+Die Audio-Schicht soll bei jedem Start diese Werte erfassen und später im Setup sichtbar machen:
+
+- SampleRate, aktuell meist `16000 Hz` im MVP.
+- RecordBufferSize und TrackBufferSize.
+- FrameSize je Latenzmodus.
+- Startzeit und Fehlerstatus von `AudioRecord`/`AudioTrack`.
+- Geschätzte Roundtrip-Latenz, sobald ein Messverfahren vorhanden ist.
+
+Echo, Rückkopplung/Pfeifen und zu hohe Lautstärke müssen als Sicherheitswarnung in UI und Dokumentation sichtbar bleiben.
+
 ## Oboe/C++-Pfad
 
 Oboe ist sinnvoll, sobald die Java/Kotlin-Pipeline nicht mehr reicht. Der native Pfad sollte später als `NativeAudioEngine` hinter `AudioEngine` eingebunden werden.

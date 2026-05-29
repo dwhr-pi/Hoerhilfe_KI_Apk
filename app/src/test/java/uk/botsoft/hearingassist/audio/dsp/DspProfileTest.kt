@@ -22,6 +22,7 @@ class DspProfileTest {
             gain = 99f,
             balance = -3f,
             equalizer = EqualizerBands(bass = 9f, speech = -2f, treble = 4f),
+            parametricEq = listOf(ParametricEqBand(22_000f, 30f, 99f)),
             limiterCeiling = 1.5f,
         ).normalized()
 
@@ -29,6 +30,9 @@ class DspProfileTest {
         assertEquals(-1f, profile.balance, 0.001f)
         assertEquals(2.0f, profile.equalizer.bass, 0.001f)
         assertEquals(0.5f, profile.equalizer.speech, 0.001f)
+        assertEquals(12_000f, profile.parametricEq.first().frequencyHz, 0.001f)
+        assertEquals(12f, profile.parametricEq.first().gainDb, 0.001f)
+        assertEquals(8f, profile.parametricEq.first().q, 0.001f)
         assertEquals(0.98f, profile.limiterCeiling, 0.001f)
     }
 }

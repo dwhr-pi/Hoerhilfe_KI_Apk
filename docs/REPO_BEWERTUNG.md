@@ -36,8 +36,8 @@ Der lokale Stand ist nicht mehr nur ein README-MVP, sondern bereits eine lauffä
 - Echte DSP-Kette mit parametrischem EQ, Kompressor, Limiter, Feedback-Erkennung und Messwerten.
 - Robustes Audio-Fokus-Konzept für parallele Medienwiedergabe.
 - Vollständiges Onboarding mit Datenschutz- und Lautstärkewarnungen.
-- Export/Löschen aller Nutzerdaten in der UI.
-- Reproduzierbare CI-Builds ohne lokale Maven-/Tool-Abhängigkeiten.
+- Export/Löschen aller Nutzerdaten ist in der UI vorbereitet, braucht aber später echte Datei- und Backup-Formate.
+- Reproduzierbare CI-Builds sind vorbereitet; lokales Gradle bleibt dokumentiert, darf aber nicht als Build-Artefakt committed werden.
 
 ## Risiken
 
@@ -56,12 +56,14 @@ Der lokale Stand ist nicht mehr nur ein README-MVP, sondern bereits eine lauffä
 - Build stabilisieren.
 - README, Datenschutz, medizinische Abgrenzung und Testanleitung pflegen.
 - Hörtest gegen Endlosschleifen und Störungen absichern.
+- Schwarz/orange Design analog zu myExplorer konsolidieren.
 
 ### Level 2: Echte Audioaufnahme + Playback
 
 - `AudioEngine` als Interface stabilisieren.
 - `AudioRecord`/`AudioTrack` messbar betreiben.
 - AudioFocus und Medien-Mix je Android-Version testen.
+- SampleRate, Buffergrößen, FrameSize und Fehlerstatus in der UI anzeigen.
 
 ### Level 3: DSP-Profile
 

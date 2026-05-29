@@ -23,6 +23,19 @@ data class EqualizerBands(
     )
 }
 
+data class ParametricEqBand(
+    val frequencyHz: Float,
+    val gainDb: Float,
+    val q: Float = 1.0f,
+    val enabled: Boolean = true,
+) {
+    fun normalized(): ParametricEqBand = copy(
+        frequencyHz = frequencyHz.coerceIn(60f, 12_000f),
+        gainDb = gainDb.coerceIn(-12f, 12f),
+        q = q.coerceIn(0.2f, 8f),
+    )
+}
+
 data class CompressorSettings(
     val enabled: Boolean = true,
     val thresholdDb: Float = -18f,
@@ -54,6 +67,7 @@ data class DspProfile(
     val gain: Float = 1.0f,
     val balance: Float = 0f,
     val equalizer: EqualizerBands = EqualizerBands(),
+    val parametricEq: List<ParametricEqBand> = emptyList(),
     val compressor: CompressorSettings = CompressorSettings(),
     val feedbackProtection: FeedbackProtectionSettings = FeedbackProtectionSettings(),
     val limiterCeiling: Float = 0.92f,
@@ -62,6 +76,7 @@ data class DspProfile(
         gain = gain.coerceIn(0.1f, 2.5f),
         balance = balance.coerceIn(-1f, 1f),
         equalizer = equalizer.normalized(),
+        parametricEq = parametricEq.take(8).map { it.normalized() },
         compressor = compressor.normalized(),
         feedbackProtection = feedbackProtection.normalized(),
         limiterCeiling = limiterCeiling.coerceIn(0.4f, 0.98f),
@@ -71,7 +86,12 @@ data class DspProfile(
 object DspPresets {
     val all: List<DspProfile> = listOf(
         DspProfile(DspPreset.Everyday, gain = 1.05f, equalizer = EqualizerBands(1.0f, 1.12f, 1.08f)),
-        DspProfile(DspPreset.Speech, gain = 1.12f, equalizer = EqualizerBands(0.92f, 1.32f, 1.16f)),
+        DspProfile(
+            DspPreset.Speech,
+            gain = 1.12f,
+            equalizer = EqualizerBands(0.92f, 1.32f, 1.16f),
+            parametricEq = listOf(ParametricEqBand(1_500f, 2.5f, 1.1f), ParametricEqBand(3_000f, 2.0f, 1.0f)),
+        ),
         DspProfile(DspPreset.Tv, gain = 1.08f, equalizer = EqualizerBands(0.95f, 1.26f, 1.12f)),
         DspProfile(DspPreset.Restaurant, gain = 1.06f, equalizer = EqualizerBands(0.88f, 1.35f, 1.05f)),
         DspProfile(DspPreset.Outdoor, gain = 1.04f, equalizer = EqualizerBands(0.9f, 1.22f, 1.1f)),

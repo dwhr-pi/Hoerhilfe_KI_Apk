@@ -10,7 +10,17 @@ Mikrofon- und Transkriptionsdaten sind sensibel. Die App darf keine heimliche Au
 - Keine Cloud-Übertragung ohne Zustimmung.
 - Keine Audio-Speicherung als Standard.
 - Temporäre Speicherung nur transparent.
-- Verlauf und Profile müssen später exportierbar und löschbar sein.
+- Verlauf löschen, Profile löschen, Gateway zurücksetzen und Datenexport sind in der Setup-UI vorbereitet.
+- Export erfolgt als bewusst ausgelöster Android-Share-Intent, nicht automatisch im Hintergrund.
+
+## Sichtbare Aktivität
+
+Die UI muss klar zeigen:
+
+- Mikrofon aktiv.
+- Transkription aktiv.
+- Cloud/KI aktiv oder Gateway nicht konfiguriert.
+- Datenschutzmodus aktiv.
 
 ## Fehlerberichte
 

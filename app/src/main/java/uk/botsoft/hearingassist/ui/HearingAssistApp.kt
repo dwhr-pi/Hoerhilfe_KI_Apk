@@ -1,6 +1,7 @@
 package uk.botsoft.hearingassist.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -115,6 +116,38 @@ private enum class Screen {
     Assistant,
     Settings,
 }
+
+private val MyExplorerOrangeDark = darkColorScheme(
+    primary = Color(0xFFFF7A18),
+    onPrimary = Color(0xFF1B1B1F),
+    secondary = Color(0xFFFFAA33),
+    onSecondary = Color(0xFF1B1B1F),
+    tertiary = Color(0xFFFFD9B3),
+    background = Color(0xFF0B0B0D),
+    onBackground = Color(0xFFFFF3E6),
+    surface = Color(0xFF1B1B1F),
+    onSurface = Color(0xFFFFF3E6),
+    surfaceVariant = Color(0xFF2A2522),
+    onSurfaceVariant = Color(0xFFEED7C5),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+)
+
+private val MyExplorerOrangeLight = lightColorScheme(
+    primary = Color(0xFFFF7A18),
+    onPrimary = Color(0xFF1B1B1F),
+    secondary = Color(0xFF9A4D00),
+    onSecondary = Color.White,
+    tertiary = Color(0xFF6F4B20),
+    background = Color(0xFFFFF8F2),
+    onBackground = Color(0xFF231A14),
+    surface = Color(0xFFFFF1E3),
+    onSurface = Color(0xFF231A14),
+    surfaceVariant = Color(0xFFFFD9B3),
+    onSurfaceVariant = Color(0xFF4E3320),
+    error = Color(0xFFBA1A1A),
+    onError = Color.White,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -562,6 +595,48 @@ fun HearingAssistApp() {
         maintenanceStatus = localized(activeLanguage(), "Fehlerprotokoll geloescht", "Error log cleared")
     }
 
+    fun clearTranscriptHistory() {
+        transcriptText = localized(activeLanguage(), "Hier erscheint die Live-Transkription.", "Live transcription will appear here.")
+        transcriptionStatus = localized(activeLanguage(), "Transkriptionsverlauf geloescht", "Transcription history cleared")
+    }
+
+    fun deleteCustomProfiles() {
+        val defaultProfiles = appSettings.savedProfiles.filter { it.source == "Vorgabe" }
+        val retainedProfiles = defaultProfiles.ifEmpty { AppSettings().savedProfiles }
+        val firstProfile = retainedProfiles.first()
+        persist(
+            appSettings.copy(
+                profile = firstProfile.profile,
+                savedProfiles = retainedProfiles,
+                selectedProfileId = firstProfile.id,
+            ),
+        )
+        profileNameInput = firstProfile.name
+        maintenanceStatus = localized(activeLanguage(), "Eigene Profile geloescht", "Custom profiles deleted")
+    }
+
+    fun resetGatewayConfiguration() {
+        persist(appSettings.copy(gatewaySettings = GatewaySettings()))
+        maintenanceStatus = localized(activeLanguage(), "Gateway-Konfiguration zurueckgesetzt", "Gateway configuration reset")
+    }
+
+    fun exportAppData() {
+        val exportText = buildSettingsExport(appSettings, transcriptText)
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_SUBJECT, "Höhrhilfe KI Alpha Export")
+            putExtra(Intent.EXTRA_TEXT, exportText)
+        }
+        runCatching {
+            context.startActivity(Intent.createChooser(sendIntent, localized(activeLanguage(), "Daten exportieren", "Export data")))
+        }.onSuccess {
+            maintenanceStatus = localized(activeLanguage(), "Export an Android-Teilen-Menue uebergeben", "Export handed to Android share sheet")
+        }.onFailure {
+            maintenanceStatus = localized(activeLanguage(), "Export konnte nicht gestartet werden", "Export could not be started") +
+                ": ${it.message ?: "unknown"}"
+        }
+    }
+
     fun checkForUpdate() {
         maintenanceStatus = localized(activeLanguage(), "Update-Pruefung laeuft ...", "Checking for update ...")
         scope.launch {
@@ -679,12 +754,13 @@ fun HearingAssistApp() {
     }
 
     MaterialTheme(
-        colorScheme = if (useDarkTheme) darkColorScheme() else lightColorScheme(),
+        colorScheme = if (useDarkTheme) MyExplorerOrangeDark else MyExplorerOrangeLight,
     ) {
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(localized(language, "Hörhilfe KI", "AI Hearing Aid"), fontWeight = FontWeight.SemiBold) },
+                    title = { Text(localized(language, "Höhrhilfe KI", "AI Hearing Aid"), fontWeight = FontWeight.SemiBold) },
                 )
             },
             bottomBar = {
@@ -731,6 +807,7 @@ fun HearingAssistApp() {
                     currentProfile = appSettings.profile,
                     savedProfiles = appSettings.savedProfiles,
                     selectedProfileId = appSettings.selectedProfileId,
+                    gatewaySettings = appSettings.gatewaySettings,
                     profileName = profileNameInput,
                     transcriptText = transcriptText,
                     transcriptionStatus = transcriptionStatus,
@@ -840,6 +917,10 @@ fun HearingAssistApp() {
                     onSendErrorReport = ::sendErrorReport,
                     onClearErrorReport = ::clearErrorReport,
                     onCheckForUpdate = ::checkForUpdate,
+                    onClearTranscripts = ::clearTranscriptHistory,
+                    onDeleteCustomProfiles = ::deleteCustomProfiles,
+                    onResetGateway = ::resetGatewayConfiguration,
+                    onExportData = ::exportAppData,
                 )
             }
         }
@@ -855,6 +936,7 @@ private fun HomeScreen(
     currentProfile: HearingProfile,
     savedProfiles: List<SavedProfile>,
     selectedProfileId: String,
+    gatewaySettings: GatewaySettings,
     profileName: String,
     transcriptText: String,
     transcriptionStatus: String,
@@ -874,6 +956,48 @@ private fun HomeScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        item {
+            Card {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(localized(language, "Experimentelle Hörassistenz", "Experimental hearing assistance"), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        localized(
+                            language,
+                            "Keine medizinische Diagnose, kein Ersatz für HNO-Arzt, Hörakustiker oder zugelassenes Hörgerät. Starte mit niedriger Lautstärke und stoppe sofort bei Pfeifen, Echo oder Unwohlsein.",
+                            "No medical diagnosis, no replacement for ENT doctor, audiologist, or approved hearing aid. Start at low volume and stop immediately if there is feedback, echo, or discomfort.",
+                        ),
+                        style = detailStyle,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AssistChip(onClick = {}, label = { Text(localized(language, "Mikrofon nur sichtbar aktiv", "Microphone visibly active")) })
+                        AssistChip(onClick = {}, label = { Text(localized(language, "Lokal bevorzugt", "Prefer local")) })
+                    }
+                }
+            }
+        }
+
+        item {
+            Card {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(localized(language, "Gateway-Status", "Gateway status"), style = MaterialTheme.typography.titleMedium)
+                    val status = when {
+                        gatewaySettings.baseUrl.isBlank() -> localized(language, "offline / nicht konfiguriert", "offline / not configured")
+                        gatewaySettings.apiKey.isBlank() -> localized(language, "erreichbar nur ohne Token getestet", "reachable only tested without token")
+                        else -> localized(language, "konfiguriert, Test empfohlen", "configured, test recommended")
+                    }
+                    Text(status)
+                    Text(
+                        localized(
+                            language,
+                            "Datenschutzmodus aktiv: Audio wird standardmäßig nicht gespeichert oder automatisch in die Cloud gesendet.",
+                            "Privacy mode active: audio is not stored or automatically sent to the cloud by default.",
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
+
         item {
             Card {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1026,8 +1150,16 @@ private fun HearingTestScreen(
                     Text(
                         localized(
                             language,
-                            "Der Test prüft das linke und rechte Ohr getrennt. Zusätzlich wird eine Gesamtkurve aus beiden Seiten als grobe Gesamtansicht berechnet.",
-                            "The test checks the left and right ear separately. An overall curve is also derived from both sides as a rough overall view.",
+                            "Der Test prüft das linke und rechte Ohr getrennt als Orientierung für ein Testprofil. Er ist keine medizinisch validierte Audiometrie.",
+                            "The test checks the left and right ear separately as orientation for a test profile. It is not medically validated audiometry.",
+                        ),
+                        style = detailStyle,
+                    )
+                    Text(
+                        localized(
+                            language,
+                            "Live Assist, Monitor und Transkription werden beim Start pausiert. Bitte aktiviere am Handy vor dem Test Nicht stören.",
+                            "Live Assist, monitor, and transcription are paused at start. Please enable Do Not Disturb on the phone before testing.",
                         ),
                         style = detailStyle,
                     )
@@ -1409,6 +1541,10 @@ private fun SettingsScreen(
     onSendErrorReport: () -> Unit,
     onClearErrorReport: () -> Unit,
     onCheckForUpdate: () -> Unit,
+    onClearTranscripts: () -> Unit,
+    onDeleteCustomProfiles: () -> Unit,
+    onResetGateway: () -> Unit,
+    onExportData: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -1684,6 +1820,43 @@ private fun SettingsScreen(
                         .heightIn(min = 148.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    Text(localized(language, "Datenschutz & Daten", "Privacy & data"), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        localized(
+                            language,
+                            "Mikrofon, Transkription und Cloud/KI müssen sichtbar und bewusst aktiv sein. Standard: keine Audio-Speicherung.",
+                            "Microphone, transcription, and cloud/AI must be visible and intentionally active. Default: no audio storage.",
+                        ),
+                        style = detailTextStyle(runtimeSettings.textScale),
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onClearTranscripts) {
+                            Text(localized(language, "Verlauf löschen", "Clear history"))
+                        }
+                        Button(onClick = onExportData) {
+                            Text(localized(language, "Daten exportieren", "Export data"))
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onDeleteCustomProfiles) {
+                            Text(localized(language, "Profile löschen", "Delete profiles"))
+                        }
+                        Button(onClick = onResetGateway) {
+                            Text(localized(language, "Gateway zurücksetzen", "Reset gateway"))
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Card {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .heightIn(min = 148.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     Text(localized(language, "Fehlerprotokoll", "Error log"), style = MaterialTheme.typography.titleMedium)
                     Text(localized(language, "Produktkennung", "Product id") + ": ${maintenanceSettings.productId}", style = detailTextStyle(runtimeSettings.textScale))
                     OutlinedTextField(
@@ -1925,6 +2098,52 @@ private fun noiseSuppressionLabel(mode: NoiseSuppressionMode): String = when (mo
 private fun homeProfileLabel(profile: SavedProfile, language: AppLanguage): String {
     val compactName = profile.name.removePrefix("Standard ").removePrefix("Standard")
     return if (compactName.isBlank()) localized(language, "Profil", "Profile") else compactName
+}
+
+private fun buildSettingsExport(settings: AppSettings, transcriptText: String): String {
+    val profileCsv = buildString {
+        appendLine("name,source,preset,gain,low,mid,high,noise,voice")
+        settings.savedProfiles.forEach { saved ->
+            appendLine(
+                listOf(
+                    saved.name,
+                    saved.source,
+                    saved.profile.preset.name,
+                    "%.2f".format(Locale.US, saved.profile.gain),
+                    "%.2f".format(Locale.US, saved.profile.lowBand),
+                    "%.2f".format(Locale.US, saved.profile.midBand),
+                    "%.2f".format(Locale.US, saved.profile.highBand),
+                    "%.2f".format(Locale.US, saved.profile.noiseReduction),
+                    "%.2f".format(Locale.US, saved.profile.voiceFocus),
+                ).joinToString(",") { it.csvEscaped() },
+            )
+        }
+    }
+    return """
+        {
+          "productId": "${settings.maintenanceSettings.productId.jsonEscaped()}",
+          "medicalNotice": "Experimentell, keine Diagnose, kein Ersatz fuer HNO-Arzt, Hoerakustiker oder zugelassenes Hoergeraet.",
+          "selectedProfileId": "${settings.selectedProfileId.jsonEscaped()}",
+          "gatewayProvider": "${settings.gatewaySettings.provider.name}",
+          "gatewayBaseUrl": "${settings.gatewaySettings.baseUrl.jsonEscaped()}",
+          "transcriptPreview": "${transcriptText.take(600).jsonEscaped()}",
+          "profilesCsv": "${profileCsv.jsonEscaped()}"
+        }
+    """.trimIndent()
+}
+
+private fun String.jsonEscaped(): String = replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+    .replace("\n", "\\n")
+    .replace("\r", "")
+
+private fun String.csvEscaped(): String {
+    val escaped = replace("\"", "\"\"")
+    return if (escaped.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) {
+        "\"$escaped\""
+    } else {
+        escaped
+    }
 }
 
 @Composable

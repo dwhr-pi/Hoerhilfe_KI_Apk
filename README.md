@@ -29,8 +29,10 @@ Screenshots folgen. Vorgesehen sind:
 - Live-Audio-Grundlage mit `AudioRecord`/`AudioTrack`.
 - Live-Transkription über Android-Spracherkennung.
 - Setup-Schalter für Dark Mode, Sprache, Schriftgröße, DSP, Transkription und KI.
+- Schwarz/orange Design angelehnt an die myExplorer-App: Orange `#FF7A18`, Amber `#FFAA33`, Dunkelgrau/Schwarz.
 - OpenAI-kompatibles Gateway, Ollama/OpenClaw-Pfade vorbereitet.
 - Fehlerprotokoll per Mail-Intent und Alpha-Update-Manifest vorbereitet.
+- Datenschutzbereich im Setup für Verlauf löschen, Profile löschen, Gateway zurücksetzen und Daten exportieren.
 
 ## Was funktioniert aktuell?
 
@@ -71,7 +73,13 @@ Voraussetzungen:
 - Java 17, zum Beispiel die von Android Studio installierte Runtime.
 - Gradle Wrapper oder lokal bereitgestellte Gradle-Version.
 
-Debug-Build mit lokalem Gradle im Repo:
+Debug-Build mit installiertem Gradle oder Android-Studio-Gradle:
+
+```powershell
+gradle assembleDebug
+```
+
+Falls auf deinem Rechner zusätzlich ein lokales Gradle unter `tools/gradle-8.7` liegt:
 
 ```powershell
 .\tools\gradle-8.7\bin\gradle.bat assembleDebug
@@ -80,7 +88,7 @@ Debug-Build mit lokalem Gradle im Repo:
 Unit Tests:
 
 ```powershell
-.\tools\gradle-8.7\bin\gradle.bat testDebugUnitTest
+gradle testDebugUnitTest
 ```
 
 Release-Build:
@@ -103,6 +111,12 @@ Beispiele:
 - Ollama Proxy: `/ollama/api/chat`
 
 Details stehen in [docs/KI_GATEWAY.md](docs/KI_GATEWAY.md).
+
+## ESP32 Remote
+
+ESP32-Unterstützung ist als Remote-Konzept vorbereitet, aber noch keine echte Geräteverbindung. Geplant sind Profilumschaltung, Lauter/Leiser, Mute, Statusanzeige und optional ein Hörtest-Reaktionsbutton.
+
+Details stehen in [docs/ESP32_REMOTE.md](docs/ESP32_REMOTE.md).
 
 ## Datenschutz
 

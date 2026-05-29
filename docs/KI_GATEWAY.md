@@ -30,6 +30,15 @@ Mögliche lokale Konfigurationen:
 - Ollama Proxy: `https://dein-host/ollama/api/chat`
 - Lokales LAN: `http://192.168.x.x:11434`
 
+## Gateway-Status
+
+Die App unterscheidet im UI-Grundzustand:
+
+- `offline / nicht konfiguriert`, wenn keine Base URL eingetragen ist.
+- `konfiguriert, Test empfohlen`, wenn ein Gateway eingetragen ist.
+- Fehlertext aus dem Gateway-Test, wenn der Request fehlschlägt.
+- Datenschutzmodus aktiv, solange keine automatische Audio-Cloud-Übertragung implementiert ist.
+
 ## Datenschutz-Schalter
 
 - Offline bevorzugen.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="launcher_background">#1B1B1F</color>
+    <color name="botsoft_orange">#FF7A18</color>
+    <color name="botsoft_amber">#FFAA33</color>
+    <color name="botsoft_dark">#1B1B1F</color>
+</resources>
