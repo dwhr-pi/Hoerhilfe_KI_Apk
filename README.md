@@ -2,7 +2,7 @@
 
 Experimentelle Open-Source-Hörassistenz für Android mit Profilverwaltung, Audio-Dashboard, Hörtest, Live-Transkription und vorbereiteter KI-Gateway-Anbindung.
 
-Wichtiger medizinischer Hinweis: Keine medizinische Diagnose, kein Ersatz für HNO-Arzt, Hörakustiker oder zugelassenes Hörgerät. Die App ist nicht medizinisch zertifiziert und darf nicht als Medizinprodukt beworben werden. Nutzung auf eigene Verantwortung.
+**Wichtiger medizinischer Hinweis**: Keine medizinische Diagnose, kein Ersatz für HNO-Arzt, Hörakustiker oder zugelassenes Hörgerät. Die App ist nicht medizinisch zertifiziert und darf nicht als Medizinprodukt beworben werden. Nutzung auf eigene Verantwortung.
 
 ## Projektidee
 
